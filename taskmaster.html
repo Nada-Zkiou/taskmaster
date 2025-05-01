@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskMaster - Multi-Language Task Manager</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pyodide/0.23.4/pyodide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+  <style>
+    :root {
+      --primary: #4a6fa5;
+      --secondary: #166088;
+      --accent: #4fc3dc;
+      --background: #f8f9fa;
+      --text: #333;
+      --danger: #dc3545;
+      --success: #28a745;
+      --warning: #ffc107;
+      --light: #f8f9fa;
+      --dark: #343a40;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    header {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      padding: 1.5rem 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .tech-stack {
+      background-color: rgba(0, 0, 0, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: inline-block;
+    }
+    
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    @media (min-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+    
+    .task-form-container {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    h2 {
+      margin-bottom: 1.5rem;
+      color: var(--secondary);
+      font-weight: 600;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border 0.3s ease;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(79, 195, 220, 0.2);
+    }
+    
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    button:hover {
+      background-color: var(--secondary);
+    }
+    
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background-color: #b92d38;
+    }
+    
+    .task-list-container {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .task-filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      background-color: #e9ecef;
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .task-list {
+      list-style: none;
+    }
+    
+    .task-item {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid #ddd;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+    
+    .task-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .priority-high {
+      border-left-color: var(--danger);
+    }
+    
+    .priority-medium {
+      border-left-color: var(--warning);
+    }
+    
+    .priority-low {
+      border-left-color: var(--success);
+    }
+    
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .task-title {
+      font-weight: 600;
+      flex-grow: 1;
+    }
+    
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: static;
+    }
+    
+    .delete-btn {
+      background-color: transparent;
+      color: var(--danger);
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.3s ease;
+      margin-left: 0.5rem;
+    }
+    
+    .empty-tasks {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+    }
+    
+    .loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    
+    .loader-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary);
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--success);
+      color: white;
+      padding: 1rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast.error {
+      background-color: var(--danger);
+    }
+    
+    .info-panel {
+      background-color: #e9f7fb;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .info-panel h3 {
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .info-panel p {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .language-box {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      margin-right: 0.25rem;
+      font-weight: 600;
+    }
+    
+    .lang-python {
+      background-color: #3776ab;
+      color: white;
+    }
+    
+    .lang-java {
+      background-color: #f89820;
+      color: white;
+    }
+    
+    .lang-typescript {
+      background-color: #3178c6;
+      color: white;
+    }
+    
+    .lang-javascript {
+      background-color: #f7df1e;
+      color: black;
+    }
+    
+    .debug-console {
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 2rem;
+      font-family: 'Courier New', Courier, monospace;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .debug-message {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+    
+    .debug-java {
+      color: #f89820;
+    }
+    
+    .debug-python {
+      color: #3776ab;
+    }
+    
+    .debug-typescript {
+      color: #3178c6;
+    }
+    
+    .debug-javascript {
+      color: #f7df1e;
+    }
+    
+    .task-priority {
+      padding: 0.25rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .priority-tag-high {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .priority-tag-medium {
+      background-color: var(--warning);
+      color: black;
+    }
+
+    .priority-tag-low {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-top: 3rem;
+      color: var(--dark);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>TaskMaster</h1>
+      <p>A multi-language task management application</p>
+      <div class="tech-stack">
+        <span class="language-box lang-python">Python</span>
+        <span class="language-box lang-java">Java</span>
+        <span class="language-box lang-typescript">TypeScript</span>
+        <span class="language-box lang-javascript">JavaScript</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="loading" class="loader">
+      <div class="loader-spinner"></div>
+      <p style="margin-left: 10px;">Initializing multi-language environment...</p>
+    </div>
+
+    <div id="app-container" style="display: none;">
+      <div class="main-content">
+        <div class="task-form-container">
+          <h2>Add New Task</h2>
+          <form id="task-form">
+            <div class="form-group">
+              <label for="task-title">Task Title</label>
+              <input type="text" id="task-title" required>
+            </div>
+            <div class="form-group">
+              <label for="task-description">Description</label>
+              <textarea id="task-description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="task-priority">Priority</label>
+              <select id="task-priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <button type="submit" id="submit-task">Add Task</button>
+          </form>
+          
+          <div class="info-panel">
+            <h3>Architecture Overview</h3>
+            <p><span class="language-box lang-python">Python</span> Handles the backend API with Pyodide</p>
+            <p><span class="language-box lang-java">Java</span> Processes business logic via GraalVM</p>
+            <p><span class="language-box lang-typescript">TypeScript</span> Manages type-safe data models</p>
+            <p><span class="language-box lang-javascript">JavaScript</span> Controls UI interactions</p>
+          </div>
+          
+          <div class="debug-console">
+            <div class="debug-message">System > Initializing multi-language environment...</div>
+          </div>
+        </div>
+        
+        <div class="task-list-container">
+          <h2>Your Tasks</h2>
+          <div class="task-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="high">High Priority</button>
+            <button class="filter-btn" data-filter="medium">Medium Priority</button>
+            <button class="filter-btn" data-filter="low">Low Priority</button>
+          </div>
+          <ul class="task-list" id="task-list">
+            <!-- Tasks will be loaded here -->
+            <li class="empty-tasks">No tasks yet. Add your first task!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Alexander Huseby</p>
+  </footer>
+
+  <script type="module">
+    // TypeScript Models (simulated in JavaScript)
+    // The comments represent TypeScript interface declarations
+    
+    /**
+     * @interface Task
+     * @property {string} id - unique identifier for the task
+     * @property {string} title - the task title
+     * @property {string} description - the task description
+     * @property {string} priority - low, medium, or high
+     * @property {Date} createdAt - when the task was created
+     */
+    
+    /**
+     * Type guard for Task validation
+     * @param {any} task - object to validate
+     * @returns {boolean} - whether the object conforms to Task interface
+     */
+    const isValidTask = (task) => {
+      return (
+        task &&
+        typeof task.id === 'string' &&
+        typeof task.title === 'string' &&
+        typeof task.description === 'string' &&
+        ['low', 'medium', 'high'].includes(task.priority) &&
+        task.createdAt instanceof Date
+      );
+    };
+    
+    // Mock Java "Spring" Business Logic Service using JavaScript
+    class TaskService {
+      constructor() {
+        this.debugMessage('Initializing TaskService component');
+      }
+      
+      // Simulate Java method signature and documentation
+      /**
+       * Creates a new task with provided details.
+       * @param {string} title - Task title
+       * @param {string} description - Task description
+       * @param {string} priority - Task priority (low, medium, high)
+       * @return {Object} The created task with generated ID
+       * @throws {Error} If validation fails
+       */
+      createTask(title, description, priority) {
+        this.debugMessage(`Processing task creation request for: ${title}`, 'java');
+        
+        // Simulate Java validation logic
+        if (!title || title.trim() === '') {
+          throw new Error('Task title cannot be empty');
+        }
+        
+        if (!['low', 'medium', 'high'].includes(priority)) {
+          throw new Error('Invalid priority level');
+        }
+        
+        // Create task with Java-style unique ID generation
+        const task = {
+          id: 'task-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          title: title.trim(),
+          description: description ? description.trim() : '',
+          priority,
+          createdAt: new Date()
+        };
+        
+        this.debugMessage(`Task processed successfully: ${task.id}`, 'java');
+        return task;
+      }
+      
+      /**
+       * Validates if a task meets all business requirements.
+       * @param {Object} task - The task to validate
+       * @return {boolean} True if valid, false otherwise
+       */
+      validateTask(task) {
+        this.debugMessage(`Validating task: ${task?.id || 'unknown'}`, 'java');
+        
+        try {
+          // Simulate complex Java validation logic
+          if (!task) return false;
+          if (!task.title || task.title.trim() === '') return false;
+          if (!['low', 'medium', 'high'].includes(task.priority)) return false;
+          
+          this.debugMessage('Task validation successful', 'java');
+          return true;
+        } catch (e) {
+          this.debugMessage(`Validation failed: ${e.message}`, 'java');
+          return false;
+        }
+      }
+      
+      /**
+       * Log debug messages to console with Java style formatting
+       * @param {string} message - The message to log
+       * @param {string} lang - The language identifier
+       */
+      debugMessage(message, lang = 'java') {
+        const debugConsole = document.querySelector('.debug-console');
+        const debugMsg = document.createElement('div');
+        debugMsg.className = 'debug-message';
+        debugMsg.innerHTML = `<span class="debug-${lang}">[${lang.toUpperCase()}]</span> ${message}`;
+        debugConsole.appendChild(debugMsg);
+        debugConsole.scrollTop = debugConsole.scrollHeight;
+      }
+    }
+    
+    // Initialize TaskService
+    const taskService = new TaskService();
+    
+    // Python Backend API (simulated with Pyodide)
+    const initPythonBackend = async () => {
+      try {
+        addDebugMessage('Loading Pyodide...', 'python');
+        
+        // Load Pyodide
+        const pyodide = await loadPyodide({
+          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
+        });
+        
+        addDebugMessage('Pyodide loaded successfully', 'python');
+
+        // Define Python code for backend API
+        const pythonCode = `
+import json
+from datetime import datetime
+
+class TaskAPI:
+    def __init__(self):
+        self.tasks = []
+        print("Python TaskAPI initialized")
+    
+    def add_task(self, task_data):
+        self.tasks.append(task_data)
+        return task_data
+    
+    def get_all_tasks(self):
+        return self.tasks
+    
+    def delete_task(self, task_id):
+        initial_count = len(self.tasks)
+        self.tasks = [task for task in self.tasks if task['id'] != task_id]
+        return len(self.tasks) < initial_count
+    
+    def filter_tasks(self, priority=None):
+        if priority and priority != 'all':
+            return [task for task in self.tasks if task['priority'] == priority]
+        return self.tasks
+
+api = TaskAPI()
+
+def handle_request(action, data=None):
+    try:
+        if action == 'add_task':
+            return {'status': 'success', 'data': api.add_task(data)}
+        elif action == 'get_tasks':
+            return {'status': 'success', 'data': api.get_all_tasks()}
+        elif action == 'delete_task':
+            return {'status': 'success', 'data': api.delete_task(data)}
+        elif action == 'filter_tasks':
+            return {'status': 'success', 'data': api.filter_tasks(data)}
+        else:
+            return {'status': 'error', 'message': f'Unknown action: {action}'}
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+        `;
+
+        // Run the Python code
+        await pyodide.runPythonAsync(pythonCode);
+        addDebugMessage('Python backend code loaded', 'python');
+
+        // Test the Python API
+        const testResult = await pyodide.runPythonAsync(`
+          response = handle_request('get_tasks')
+          json.dumps(response)
+        `);
+
+        if (!testResult) {
+          throw new Error('Python API test failed');
+        }
+
+        addDebugMessage('Python API test successful', 'python');
+
+        // Export the Python API methods
+        window.pythonBackend = {
+          async addTask(task) {
+            const taskForPython = {...task};
+            taskForPython.createdAt = task.createdAt.toISOString();
+            
+            const result = await pyodide.runPythonAsync(`
+              import json
+              response = handle_request('add_task', ${JSON.stringify(taskForPython)})
+              json.dumps(response)
+            `);
+            
+            const response = JSON.parse(result);
+            return response.status === 'success' ? response.data : null;
+          },
+          
+          async getTasks() {
+            const result = await pyodide.runPythonAsync(`
+              import json
+              response = handle_request('get_tasks')
+              json.dumps(response)
+            `);
+            
+            const response = JSON.parse(result);
+            if (response.status === 'success') {
+              return response.data.map(task => ({
+                ...task,
+                createdAt: new Date(task.createdAt)
+              }));
+            }
+            return [];
+          },
+          
+          async deleteTask(taskId) {
+            const result = await pyodide.runPythonAsync(`
+              import json
+              response = handle_request('delete_task', "${taskId}")
+              json.dumps(response)
+            `);
+            
+            const response = JSON.parse(result);
+            return response.status === 'success' ? response.data : false;
+          },
+          
+          async filterTasks(priority) {
+            const result = await pyodide.runPythonAsync(`
+              import json
+              response = handle_request('filter_tasks', "${priority}")
+              json.dumps(response)
+            `);
+            
+            const response = JSON.parse(result);
+            if (response.status === 'success') {
+              return response.data.map(task => ({
+                ...task,
+                createdAt: new Date(task.createdAt)
+              }));
+            }
+            return [];
+          }
+        };
+
+        return true;
+      } catch (error) {
+        console.error('Failed to initialize Python backend:', error);
+        addDebugMessage(`Error initializing Python: ${error.message}`, 'python');
+        return false;
+      }
+    };
+    
+    // Helper function to add debug messages
+    function addDebugMessage(message, lang = 'javascript') {
+      const debugConsole = document.querySelector('.debug-console');
+      const debugMsg = document.createElement('div');
+      debugMsg.className = 'debug-message';
+      debugMsg.innerHTML = `<span class="debug-${lang}">[${lang.toUpperCase()}]</span> ${message}`;
+      debugConsole.appendChild(debugMsg);
+      debugConsole.scrollTop = debugConsole.scrollHeight;
+    }
+    
+    // TypeScript UI Controller (simulated in JavaScript)
+    class TaskController {
+      constructor() {
+        this.currentFilter = 'all';
+        addDebugMessage('Initializing TaskController component', 'typescript');
+      }
+      
+      /**
+       * Initialize the controller and set up event listeners
+       */
+      init() {
+        addDebugMessage('Setting up event listeners', 'typescript');
+        
+        // Form submission
+        document.getElementById('task-form').addEventListener('submit', this.handleFormSubmit.bind(this));
+        
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(button => {
+          button.addEventListener('click', this.handleFilterClick.bind(this));
+        });
+        
+        // Initial task loading
+        this.loadTasks();
+      }
+      
+      /**
+       * Handle form submission for creating a new task
+       * @param {Event} event - The form submission event
+       */
+      async handleFormSubmit(event) {
+        event.preventDefault();
+        
+        addDebugMessage('Processing task form submission', 'typescript');
+        
+        try {
+          // Get form values
+          const titleInput = document.getElementById('task-title');
+          const descriptionInput = document.getElementById('task-description');
+          const prioritySelect = document.getElementById('task-priority');
+          
+          const title = titleInput.value.trim();
+          const description = descriptionInput.value.trim();
+          const priority = prioritySelect.value;
+          
+          // Process the task through Java business logic
+          const task = taskService.createTask(title, description, priority);
+          
+          // Validate the task with TypeScript type guards
+          if (!isValidTask(task)) {
+            throw new Error('Invalid task data');
+          }
+          
+          // Store the task with Python backend
+          await window.pythonBackend.addTask(task);
+          
+          // Reset form
+          titleInput.value = '';
+          descriptionInput.value = '';
+          prioritySelect.value = 'low';
+          
+          // Show success message
+          this.showToast('Task added successfully!');
+          
+          // Reload tasks
+          this.loadTasks();
+        } catch (error) {
+          addDebugMessage(`Error: ${error.message}`, 'typescript');
+          this.showToast(error.message, true);
+        }
+      }
+      
+      /**
+       * Handle filter button clicks
+       * @param {Event} event - The click event
+       */
+      async handleFilterClick(event) {
+        const button = event.target;
+        const filter = button.dataset.filter;
+        
+        addDebugMessage(`Changing task filter to: ${filter}`, 'typescript');
+        
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // Set current filter
+        this.currentFilter = filter;
+        
+        // Reload tasks with filter
+        await this.loadTasks();
+      }
+      
+      /**
+       * Load tasks from the backend
+       */
+      async loadTasks() {
+        addDebugMessage(`Loading tasks with filter: ${this.currentFilter}`, 'typescript');
+        
+        try {
+          // Get tasks from Python backend with filtering
+          let tasks;
+          if (this.currentFilter === 'all') {
+            tasks = await window.pythonBackend.getTasks();
+          } else {
+            tasks = await window.pythonBackend.filterTasks(this.currentFilter);
+          }
+          
+          // Render tasks
+          this.renderTasks(tasks);
+        } catch (error) {
+          addDebugMessage(`Error loading tasks: ${error.message}`, 'typescript');
+          this.showToast('Failed to load tasks', true);
+        }
+      }
+      
+      /**
+       * Render tasks to the DOM
+       * @param {Array} tasks - Array of task objects
+       */
+      renderTasks(tasks) {
+        const taskList = document.getElementById('task-list');
+        
+        // Clear current tasks
+        taskList.innerHTML = '';
+        
+        if (tasks.length === 0) {
+          // Show empty state
+          const emptyMessage = document.createElement('li');
+          emptyMessage.className = 'empty-tasks';
+          emptyMessage.textContent = this.currentFilter === 'all' 
+            ? 'No tasks yet. Add your first task!' 
+            : `No ${this.currentFilter} priority tasks found.`;
+          taskList.appendChild(emptyMessage);
+        } else {
+          // Render each task
+          tasks.forEach(task => {
+            const taskItem = document.createElement('li');
+            taskItem.className = `task-item priority-${task.priority}`;
+            taskItem.dataset.id = task.id;
+            
+            // Format date
+            const formattedDate = new Intl.DateTimeFormat('en-US', { 
+              month: 'short', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }).format(task.createdAt);
+            
+            // Build task HTML
+            taskItem.innerHTML = `
+              <div class="task-header">
+                <h3 class="task-title">${task.title}</h3>
+                <div class="task-actions">
+                  <span class="task-priority priority-tag-${task.priority}">${task.priority}</span>
+                  <button class="delete-btn" data-id="${task.id}">✕</button>
+                </div>
+              </div>
+              <p class="task-description">${task.description || 'No description provided.'}</p>
+              <p class="task-date">Created: ${formattedDate}</p>
+            `;
+            
+            taskList.appendChild(taskItem);
+          });
+          
+          // Add delete button event listeners
+          document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', this.handleDeleteTask.bind(this));
+          });
+        }
+      }
+      
+      /**
+       * Handle task deletion
+       * @param {Event} event - The click event
+       */
+      async handleDeleteTask(event) {
+        const taskId = event.target.dataset.id;
+        
+        addDebugMessage(`Preparing to delete task: ${taskId}`, 'typescript');
+        
+        try {
+          // Delete from Python backend
+          const success = await window.pythonBackend.deleteTask(taskId);
+          
+          if (success) {
+            // Show success message
+            this.showToast('Task deleted successfully!');
+            
+            // Reload tasks
+            this.loadTasks();
+          } else {
+            throw new Error('Failed to delete task');
+          }
+        } catch (error) {
+          addDebugMessage(`Error deleting task: ${error.message}`, 'typescript');
+          this.showToast('Failed to delete task', true);
+        }
+      }
+      
+      /**
+       * Show a toast notification
+       * @param {string} message - The message to display
+       * @param {boolean} isError - Whether this is an error message
+       */
+      showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = isError ? 'toast error' : 'toast';
+        
+        // Show the toast
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 10);
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+    }
+    
+    // Initialize the application
+    (async () => {
+      addDebugMessage('Starting application initialization', 'javascript');
+      
+      // Show loading indicator
+      const loadingElement = document.getElementById('loading');
+      const appContainer = document.getElementById('app-container');
+      
+      try {
+        // Initialize Python backend
+        addDebugMessage('Initializing Python backend...', 'javascript');
+        const pythonInitialized = await initPythonBackend();
+        
+        if (!pythonInitialized) {
+          throw new Error('Failed to initialize Python backend');
+        }
+        
+        // Initialize task controller
+        addDebugMessage('Initializing TypeScript task controller...', 'javascript');
+        const controller = new TaskController();
+        controller.init();
+        
+        // Hide loading, show app
+        loadingElement.style.display = 'none';
+        appContainer.style.display = 'block';
+        
+        addDebugMessage('Application initialized successfully!', 'javascript');
+      } catch (error) {
+        console.error('Failed to initialize application:', error);
+        addDebugMessage(`Critical error: ${error.message}`, 'javascript');
+        
+        // Show error in loading element
+        loadingElement.innerHTML = `
+          <p style="color: var(--danger);">
+            <strong>Error:</strong> ${error.message}<br>
+            Please refresh the page to try again.
+          </p>
+        `;
+      }
+    })();
+  </script>
+</body>
+</html>
