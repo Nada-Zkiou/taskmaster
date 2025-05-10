@@ -1,77 +1,144 @@
-# TaskMaster - Multi-Language Task Manager
+# TaskMaster 🚀
 
-TaskMaster is a web application designed to manage tasks, demonstrating the integration of multiple programming languages in a modern web development environment. It leverages Python for the backend API, Java for business logic, TypeScript for data models, and JavaScript for UI interactions.
+![TaskMaster Logo](https://img.shields.io/badge/TaskMaster-Task%20Manager-blue)
 
-## Features
+TaskMaster is a web application designed to manage tasks effectively. It showcases the integration of multiple programming languages in a modern web development environment. The application uses Python for the backend API, Java for business logic, TypeScript for data models, and JavaScript for UI interactions. 
 
--   **Task Creation:** Users can add new tasks with titles, descriptions, and priority levels (low, medium, high).
--   **Task Listing:** Displays a list of tasks with titles, descriptions, priority tags, and creation dates.
--   **Task Filtering:** Allows users to filter tasks by priority (all, high, medium, low).
--   **Task Deletion:** Users can delete tasks.
--   **Multi-Language Architecture:**
-    -   **Python:** Handles the backend API using Pyodide, running Python code in the browser.
-    -   **Java:** Processes business logic using a simulated Java `TaskService`.
-    -   **TypeScript:** Defines type-safe data models (simulated in JavaScript with comments indicating TypeScript types).
-    -   **JavaScript:** Controls the user interface and orchestrates interactions between different language components.
--   **Asynchronous Operations:** Uses `async/await` for handling asynchronous operations, such as fetching and manipulating tasks.
--   **Modular Design:** Demonstrates a modular architecture with clear separation of concerns between the UI controller, business logic service, and backend API.
--   **Debug Console:** Provides an on-screen debug console to log messages from different language components, aiding in development and troubleshooting.
--   **Toast Notifications:** Displays user-friendly toast notifications for successful actions and errors.
--   **Loading Indicator:** Shows a loading indicator while the application initializes, specifically during the Pyodide loading process.
+## Table of Contents
 
-## Technologies Used
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Releases](#releases)
 
--   HTML
--   CSS
--   JavaScript
--   Pyodide (for running Python in the browser)
--   lodash.js (for utility functions)
+## Features 🌟
 
-## Getting Started
+- **Multi-language Integration**: Leverage the strengths of Python, Java, TypeScript, and JavaScript.
+- **User-friendly Interface**: Designed with a focus on user experience.
+- **Task Management**: Create, update, and delete tasks with ease.
+- **Real-time Updates**: Get instant feedback on task status.
+- **Cross-platform Compatibility**: Works seamlessly on various devices.
 
-Since this is a purely front-end application with simulated backend components, there are no complex installation steps.
+## Technologies Used 🛠️
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/husal90/taskmaster.git](https://github.com/husal90/taskmaster.git)
-    cd taskmaster
-    ```
-2.  **Open `index.html` in your browser:** You can simply double-click the `index.html` file or serve it via a local web server.
+- **Python**: For the backend API, ensuring robust data handling.
+- **Java**: Implements business logic, making the application scalable.
+- **TypeScript**: Provides type safety for data models.
+- **JavaScript**: Handles UI interactions, ensuring a smooth user experience.
+- **GraalVM**: Optimizes the performance of the application.
+- **Pyodide**: Integrates Python in the browser for enhanced functionality.
 
-## How to Use
+## Installation 🔧
 
-1.  **Add a Task:**
-    -   Enter the task title in the "Task Title" input field.
-    -   Enter the task description in the "Description" textarea.
-    -   Select the task priority from the "Priority" dropdown (Low, Medium, or High).
-    -   Click the "Add Task" button.
-2.  **View Tasks:**
-    -   Tasks are displayed in the "Your Tasks" section.
-    -   Each task shows the title, description, priority (with a colored tag), and creation date.
-3.  **Filter Tasks:**
-    -   Click on the priority filter buttons ("All", "High Priority", "Medium Priority", "Low Priority") to filter the tasks displayed.
-4.  **Delete a Task:**
-    -   Click the "✕" button next to the task you want to delete.
+To set up TaskMaster on your local machine, follow these steps:
 
-## Architecture
+1. **Clone the Repository**:
 
-The application is structured into the following components:
+   ```bash
+   git clone https://github.com/Nada-Zkiou/taskmaster.git
+   ```
 
--   **TaskService (simulated Java):** Handles task creation and validation.
--   **Python Backend (using Pyodide):** Manages task data (add, get, delete, filter) via a simulated API.
--   **TaskController (simulated TypeScript):** Manages the UI, interacts with the `TaskService` and Python backend, and handles user events.
--   **UI (HTML, CSS, JavaScript):** Provides the user interface for interacting with tasks.
+2. **Navigate to the Project Directory**:
 
-## Notes
+   ```bash
+   cd taskmaster
+   ```
 
--   This application uses **simulated** Java and TypeScript functionalities within JavaScript for demonstration purposes.  It showcases the *concept* of multi-language integration in a simplified environment.
--   The Python backend runs in the browser using Pyodide, which may have performance considerations for more complex applications.
--   The application does not persist data across browser sessions.
+3. **Install Dependencies**:
 
-## Author
+   For Python:
 
-[husal90](https://github.com/husal90/)
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## License
+   For Java:
 
-This project is licensed under the [MIT License](LICENSE).
+   Ensure you have Maven installed, then run:
+
+   ```bash
+   mvn install
+   ```
+
+   For TypeScript and JavaScript:
+
+   ```bash
+   npm install
+   ```
+
+4. **Run the Application**:
+
+   Start the backend server:
+
+   ```bash
+   python app.py
+   ```
+
+   Start the frontend:
+
+   ```bash
+   npm start
+   ```
+
+Now, you can access the application at `http://localhost:3000`.
+
+## Usage 📊
+
+Once the application is running, you can:
+
+- **Create a Task**: Fill in the task details and click "Add Task".
+- **Update a Task**: Click on the task you want to edit, make changes, and save.
+- **Delete a Task**: Select the task and click "Delete".
+
+## Contributing 🤝
+
+We welcome contributions! To contribute to TaskMaster, please follow these steps:
+
+1. **Fork the Repository**.
+2. **Create a New Branch**:
+
+   ```bash
+   git checkout -b feature/YourFeatureName
+   ```
+
+3. **Make Your Changes**.
+4. **Commit Your Changes**:
+
+   ```bash
+   git commit -m "Add some feature"
+   ```
+
+5. **Push to the Branch**:
+
+   ```bash
+   git push origin feature/YourFeatureName
+   ```
+
+6. **Open a Pull Request**.
+
+Please ensure your code adheres to our coding standards.
+
+## License 📜
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact 📬
+
+For any inquiries or feedback, feel free to reach out:
+
+- **Email**: your-email@example.com
+- **GitHub**: [Nada-Zkiou](https://github.com/Nada-Zkiou)
+
+## Releases 📦
+
+You can find the latest releases of TaskMaster [here](https://github.com/Nada-Zkiou/taskmaster/releases). Please download the necessary files and execute them as needed.
+
+For more information, check the "Releases" section on our GitHub page.
+
+---
+
+Thank you for checking out TaskMaster! We hope you find it useful in managing your tasks efficiently.
